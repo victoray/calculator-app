@@ -1,7 +1,21 @@
 import { StatusBar } from "expo-status-bar";
-import React, { FC } from "react";
+import React, { FC, useState } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 import styled from "styled-components/native";
+
+enum Operator {
+  ADD = "+",
+  SUBTRACT = "-",
+  DIVIDE = "÷",
+  MULTIPLY = "x",
+  EQUAL = "=",
+}
+enum Control {
+  CLEAR = "C",
+  ABS = "±",
+  PERCENTAGE = "%",
+  DOT = ".",
+}
 
 const StyledView = styled.View`
   background-color: black;
@@ -9,7 +23,7 @@ const StyledView = styled.View`
   justify-content: center;
   align-items: center;
 `;
-const StyledButton = styled.TouchableOpacity<{ color: string }>`
+const StyledButton = styled.TouchableOpacity<{ color: string; flex?: boolean }>`
   background-color: ${(props) => props.color};
   border-radius: 500px;
   width: 75px;
@@ -17,8 +31,10 @@ const StyledButton = styled.TouchableOpacity<{ color: string }>`
   padding: 10px;
   display: flex;
   justify-content: center;
-  align-items: center;
   margin: 5px;
+  flex-grow: ${(props) => (props.flex ? 1 : 0)};
+  align-items: ${(props) => (props.flex ? "flex-start" : "center")};
+  ${(props) => props.flex && "padding-left: 25px;"}
 `;
 
 const StyledButtonText = styled.Text`
@@ -45,49 +61,104 @@ const StyledKeyPadRow = styled.View`
 
 const CalculatorButton: FC<{
   title: string;
+  onPress(): void;
+  flex?: boolean;
   isControl?: boolean;
   isOperator?: boolean;
-}> = ({ title, isControl, isOperator }) => {
+}> = ({ title, isControl, isOperator, flex, onPress }) => {
   const color = isControl ? "lightgrey" : isOperator ? "orange" : "dimgrey";
   return (
-    <StyledButton onPress={() => {}} color={color}>
+    <StyledButton onPress={onPress} color={color} flex={flex}>
       <StyledButtonText>{title}</StyledButtonText>
     </StyledButton>
   );
 };
 
-const KeyPad: FC = () => {
+type KeyPadProps = {
+  handleNumberClick(value: number): void;
+  handleControlClick(value: Control): void;
+  handleOperatorClick(operator: Operator): void;
+};
+
+const KeyPad: FC<KeyPadProps> = ({
+  handleControlClick,
+  handleNumberClick,
+  handleOperatorClick,
+}) => {
   return (
     <StyledKeyPadView>
       <StyledKeyPadRow>
-        <CalculatorButton title={"C"} isControl />
-        <CalculatorButton title={"±"} isControl />
-        <CalculatorButton title={"%"} isControl />
-        <CalculatorButton title={"÷"} isOperator />
+        <CalculatorButton
+          title={Control.CLEAR}
+          onPress={() => handleControlClick(Control.CLEAR)}
+          isControl
+        />
+        <CalculatorButton
+          title={Control.ABS}
+          onPress={() => handleControlClick(Control.ABS)}
+          isControl
+        />
+        <CalculatorButton
+          title={Control.PERCENTAGE}
+          onPress={() => handleControlClick(Control.PERCENTAGE)}
+          isControl
+        />
+        <CalculatorButton
+          title={Operator.DIVIDE}
+          onPress={() => handleOperatorClick(Operator.DIVIDE)}
+          isOperator
+        />
       </StyledKeyPadRow>
+
       <StyledKeyPadRow>
-        <CalculatorButton title={"7"} />
-        <CalculatorButton title={"8"} />
-        <CalculatorButton title={"9"} />
-        <CalculatorButton title={"x"} isOperator />
+        <CalculatorButton title={"7"} onPress={() => handleNumberClick(7)} />
+        <CalculatorButton title={"8"} onPress={() => handleNumberClick(8)} />
+        <CalculatorButton title={"9"} onPress={() => handleNumberClick(9)} />
+        <CalculatorButton
+          title={Operator.MULTIPLY}
+          onPress={() => handleOperatorClick(Operator.MULTIPLY)}
+          isOperator
+        />
       </StyledKeyPadRow>
+
       <StyledKeyPadRow>
-        <CalculatorButton title={"4"} />
-        <CalculatorButton title={"5"} />
-        <CalculatorButton title={"6"} />
-        <CalculatorButton title={"-"} isOperator />
+        <CalculatorButton title={"4"} onPress={() => handleNumberClick(4)} />
+        <CalculatorButton title={"5"} onPress={() => handleNumberClick(5)} />
+        <CalculatorButton title={"6"} onPress={() => handleNumberClick(6)} />
+        <CalculatorButton
+          title={Operator.SUBTRACT}
+          onPress={() => handleOperatorClick(Operator.SUBTRACT)}
+          isOperator
+        />
       </StyledKeyPadRow>
+
       <StyledKeyPadRow>
-        <CalculatorButton title={"1"} />
-        <CalculatorButton title={"2"} />
-        <CalculatorButton title={"3"} />
-        <CalculatorButton title={"+"} isOperator />
+        <CalculatorButton title={"1"} onPress={() => handleNumberClick(1)} />
+        <CalculatorButton title={"2"} onPress={() => handleNumberClick(2)} />
+        <CalculatorButton title={"3"} onPress={() => handleNumberClick(3)} />
+
+        <CalculatorButton
+          title={Operator.ADD}
+          onPress={() => handleOperatorClick(Operator.ADD)}
+          isOperator
+        />
       </StyledKeyPadRow>
+
       <StyledKeyPadRow>
-        <CalculatorButton title={"0"} />
-        <CalculatorButton title={"C"} />
-        <CalculatorButton title={"."} />
-        <CalculatorButton title={"="} isOperator />
+        <CalculatorButton
+          title={"0"}
+          onPress={() => handleNumberClick(0)}
+          flex
+        />
+        <CalculatorButton
+          title={Control.DOT}
+          onPress={() => handleControlClick(Control.DOT)}
+        />
+        <CalculatorButton
+          title={Operator.EQUAL}
+          onPress={() => handleOperatorClick(Operator.EQUAL)}
+          isOperator
+        />
       </StyledKeyPadRow>
     </StyledKeyPadView>
   );
@@ -108,12 +179,25 @@ const StyledNumberText = styled.Text`
 `;
 
 export default function App() {
+  const [number, setNumber] = useState(0);
+
+  const handleNumberClick = (value: number) => {
+    setNumber(value);
+  };
+  const handleControlClick = (value: Control) => {};
+
+  const handleOperatorClick = (operator: Operator) => {};
   return (
     <StyledView>
       <StyledNumberView>
-        <StyledNumberText>0</StyledNumberText>
+        <StyledNumberText>{number}</StyledNumberText>
       </StyledNumberView>
-      <KeyPad />
+
+      <KeyPad
+        handleControlClick={handleControlClick}
+        handleNumberClick={handleNumberClick}
+        handleOperatorClick={handleOperatorClick}
+      />
     </StyledView>
   );
 }
