@@ -1,13 +1,13 @@
-import { StatusBar } from "expo-status-bar";
 import React, { FC, useState } from "react";
-import { Button, StyleSheet, Text, View } from "react-native";
+import ReactDOM from "react-dom";
 import styled from "styled-components/native";
 
 enum Operator {
   ADD = "+",
   SUBTRACT = "-",
-  DIVIDE = "÷",
-  MULTIPLY = "x",
+  DIVIDE = "/",
+  MULTIPLY = "*",
+  POWER = "^",
   EQUAL = "=",
 }
 enum Control {
@@ -60,7 +60,7 @@ const StyledKeyPadRow = styled.View`
 `;
 
 const CalculatorButton: FC<{
-  title: string;
+  title: string | number;
   onPress(): void;
   flex?: boolean;
   isControl?: boolean;
@@ -99,32 +99,40 @@ const KeyPad: FC<KeyPadProps> = ({
           isControl
         />
         <CalculatorButton
-          title={Control.PERCENTAGE}
-          onPress={() => handleControlClick(Control.PERCENTAGE)}
-          isControl
+          title={Operator.POWER}
+          onPress={() => handleOperatorClick(Operator.POWER)}
+          isOperator
         />
         <CalculatorButton
-          title={Operator.DIVIDE}
+          title={"÷"}
           onPress={() => handleOperatorClick(Operator.DIVIDE)}
           isOperator
         />
       </StyledKeyPadRow>
 
       <StyledKeyPadRow>
-        <CalculatorButton title={"7"} onPress={() => handleNumberClick(7)} />
-        <CalculatorButton title={"8"} onPress={() => handleNumberClick(8)} />
-        <CalculatorButton title={"9"} onPress={() => handleNumberClick(9)} />
+        {[7, 8, 9].map((number) => (
+          <CalculatorButton
+            key={number}
+            title={number}
+            onPress={() => handleNumberClick(number)}
+          />
+        ))}
         <CalculatorButton
-          title={Operator.MULTIPLY}
+          title={"x"}
           onPress={() => handleOperatorClick(Operator.MULTIPLY)}
           isOperator
         />
       </StyledKeyPadRow>
 
       <StyledKeyPadRow>
-        <CalculatorButton title={"4"} onPress={() => handleNumberClick(4)} />
-        <CalculatorButton title={"5"} onPress={() => handleNumberClick(5)} />
-        <CalculatorButton title={"6"} onPress={() => handleNumberClick(6)} />
+        {[4, 5, 6].map((number) => (
+          <CalculatorButton
+            key={number}
+            title={number}
+            onPress={() => handleNumberClick(number)}
+          />
+        ))}
         <CalculatorButton
           title={Operator.SUBTRACT}
           onPress={() => handleOperatorClick(Operator.SUBTRACT)}
@@ -133,10 +141,13 @@ const KeyPad: FC<KeyPadProps> = ({
       </StyledKeyPadRow>
 
       <StyledKeyPadRow>
-        <CalculatorButton title={"1"} onPress={() => handleNumberClick(1)} />
-        <CalculatorButton title={"2"} onPress={() => handleNumberClick(2)} />
-        <CalculatorButton title={"3"} onPress={() => handleNumberClick(3)} />
-
+        {[1, 2, 3].map((number) => (
+          <CalculatorButton
+            key={number}
+            title={number}
+            onPress={() => handleNumberClick(number)}
+          />
+        ))}
         <CalculatorButton
           title={Operator.ADD}
           onPress={() => handleOperatorClick(Operator.ADD)}
@@ -178,19 +189,89 @@ const StyledNumberText = styled.Text`
   padding: 0 15px;
 `;
 
+const MAX_DIGIT = 10;
+
 export default function App() {
-  const [number, setNumber] = useState(0);
+  const [firstNumber, setFirstNumber] = useState(0);
+  const [secondNumber, setSecondNumber] = useState<null | number>(null);
+  const [operator, setOperator] = useState<Operator | null>(null);
+
+  const [number, setNumber] = useState<string>("0");
+
+  const getNumberValue = (value: number): string => {
+    if (number.length === MAX_DIGIT) {
+      return number;
+    }
+
+    if (number === "0") {
+      return String(value);
+    }
+
+    return number + value;
+  };
 
   const handleNumberClick = (value: number) => {
-    setNumber(value);
-  };
-  const handleControlClick = (value: Control) => {};
+    if (number === "0" && value === 0) {
+      return;
+    }
 
-  const handleOperatorClick = (operator: Operator) => {};
+    const numberValue = getNumberValue(value);
+
+    if (operator && !secondNumber) {
+      setSecondNumber(value);
+      setNumber(String(value));
+    } else {
+      setNumber(numberValue);
+    }
+  };
+
+  const handleControlClick = (value: Control) => {
+    switch (value) {
+      case Control.ABS:
+        setNumber((Number(number) * -1).toString());
+        break;
+      case Control.DOT:
+        if (!number.includes(Control.DOT)) {
+          setNumber(number + Control.DOT);
+        }
+        break;
+      case Control.CLEAR:
+        ReactDOM.unstable_batchedUpdates(() => {
+          setNumber("0");
+          setOperator(null);
+          setSecondNumber(null);
+          setFirstNumber(0);
+        });
+    }
+  };
+
+  const handleOperatorClick = (value: Operator) => {
+    switch (value) {
+      case Operator.EQUAL:
+        if (secondNumber && operator) {
+          let result: number;
+
+          if (operator === Operator.POWER) {
+            result = Math.pow(firstNumber, Number(number));
+          } else {
+            result = eval(`${firstNumber} ${operator} ${number}`);
+          }
+
+          setNumber(String(result));
+        }
+
+        setSecondNumber(null);
+        break;
+      default:
+        setOperator(value);
+        setFirstNumber(Number(number));
+        setSecondNumber(null);
+    }
+  };
   return (
     <StyledView>
       <StyledNumberView>
-        <StyledNumberText>{number}</StyledNumberText>
+        <StyledNumberText>{number.slice(0, 10)}</StyledNumberText>
       </StyledNumberView>
 
       <KeyPad
@@ -201,20 +282,3 @@ export default function App() {
     </StyledView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
-const bstyles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "red",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
