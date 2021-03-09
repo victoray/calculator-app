@@ -1,10 +1,14 @@
-import React, { useState } from "react";
+import "react-native-gesture-handler";
+import React, { FC, useState } from "react";
 import ReactDOM from "react-dom";
 import styled from "styled-components/native";
 import KeyPad, { Control, Operator } from "./components/KeyPad";
+import { NavigationContainer } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 const StyledView = styled.View`
-  background-color: black;
+  background-color: #121212;
   flex: 1;
   justify-content: center;
   align-items: center;
@@ -26,7 +30,14 @@ const StyledNumberText = styled.Text`
 
 const MAX_DIGIT = 10;
 
-export default function App() {
+type RootStackParamList = {
+  Calculator: undefined;
+  Converter: undefined;
+};
+
+const App: FC<{ navigation: StackNavigationProp<RootStackParamList> }> = ({
+  navigation,
+}) => {
   const [firstNumber, setFirstNumber] = useState(0);
   const [secondNumber, setSecondNumber] = useState<null | number>(null);
   const [operator, setOperator] = useState<Operator | null>(null);
@@ -119,4 +130,133 @@ export default function App() {
       />
     </StyledView>
   );
-}
+};
+
+const StyledInputContainer = styled.View`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+`;
+
+const StyledTextInput = styled.TextInput`
+  text-align: right;
+  color: black;
+  font-size: 30px;
+  padding: 0 15px;
+  border: 1px solid black;
+  border-radius: 6px;
+  background-color: orange;
+  flex: 1;
+  width: 80%;
+  margin: 0 0 10px 10px;
+`;
+const StyledText = styled.Text`
+  font-size: 15px;
+  margin-left: 15px;
+  color: white;
+  flex: 0 0 20%;
+`;
+
+const StyledResetContainer = styled.View`
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  padding: 0 15px;
+  margin-top: 25px;
+  justify-content: center;
+`;
+
+const StyledResetButton = styled.TouchableOpacity`
+  font-size: 35px;
+  color: white;
+  background-color: #f5222d;
+  padding: 5px;
+  border-radius: 5px;
+  width: 50%;
+`;
+
+const StyledResetButtonText = styled.Text`
+  font-size: 16px;
+  color: white;
+  text-align: center;
+  font-weight: bold;
+`;
+
+const Converter = () => {
+  const [[miles, kilometers], setValues] = useState(["0", "0"]);
+
+  const hasDecimal = (value: string) => {
+    return value[value.length - 1] === "." && value.match(/\./g)?.length === 1;
+  };
+
+  const onMilesChange = (value: string) => {
+    if (hasDecimal(value)) {
+      setValues([value, (Number(value) * 1.609).toFixed(4)]);
+      return;
+    }
+    const miles_ = parseFloat(value);
+    if (!isNaN(miles_)) {
+      setValues([String(miles_), (miles_ * 1.609).toFixed(4)]);
+    }
+  };
+
+  const onKiloMetersChange = (value: string) => {
+    if (hasDecimal(value)) {
+      setValues([(Number(value) / 1.609).toFixed(4), value]);
+      return;
+    }
+    const km = parseFloat(value);
+    if (!isNaN(km)) {
+      setValues([(km / 1.609).toFixed(4), String(km)]);
+    }
+  };
+  return (
+    <StyledView>
+      <StyledInputContainer>
+        <StyledTextInput value={String(miles)} onChangeText={onMilesChange} />
+        <StyledText>miles</StyledText>
+      </StyledInputContainer>
+
+      <StyledInputContainer>
+        <StyledTextInput
+          value={String(kilometers)}
+          onChangeText={onKiloMetersChange}
+        />
+        <StyledText>km</StyledText>
+      </StyledInputContainer>
+
+      <StyledResetContainer>
+        <StyledResetButton onPress={() => setValues(["0", "0"])}>
+          <StyledResetButtonText>Reset</StyledResetButtonText>
+        </StyledResetButton>
+      </StyledResetContainer>
+    </StyledView>
+  );
+};
+
+const Tab = createBottomTabNavigator();
+
+const MyStack = () => {
+  return (
+    <NavigationContainer>
+      <Tab.Navigator
+        initialRouteName={"Converter"}
+        tabBarOptions={{
+          activeTintColor: "orange",
+          inactiveTintColor: "white",
+          style: { backgroundColor: "#121212", borderTopColor: "#121212" },
+          labelStyle: {
+            fontSize: 25,
+            fontWeight: "bold",
+          },
+        }}
+      >
+        <Tab.Screen name="Calculator" component={App} options={{}} />
+        <Tab.Screen name="Converter" component={Converter} />
+      </Tab.Navigator>
+    </NavigationContainer>
+  );
+};
+
+export default MyStack;

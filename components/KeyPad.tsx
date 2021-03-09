@@ -21,6 +21,7 @@ const StyledKeyPadView = styled.View`
   flex-basis: 60%;
   width: 100%;
   padding: 10px;
+  margin-bottom: 35px;
   display: flex;
   justify-content: space-between;
 `;
