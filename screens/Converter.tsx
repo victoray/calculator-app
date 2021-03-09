@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components/native";
 import { StyledView } from "../common/styles";
+import { Keyboard, Pressable } from "react-native";
 
 const StyledInputContainer = styled.View`
   display: flex;
@@ -89,26 +90,33 @@ const Converter = () => {
     }
   };
   return (
-    <StyledView>
-      <StyledInputContainer>
-        <StyledTextInput value={String(miles)} onChangeText={onMilesChange} />
-        <StyledText>miles</StyledText>
-      </StyledInputContainer>
+    <Pressable onPress={Keyboard.dismiss} style={{ flexGrow: 1 }}>
+      <StyledView>
+        <StyledInputContainer>
+          <StyledTextInput
+            value={String(miles)}
+            onChangeText={onMilesChange}
+            keyboardType={"numeric"}
+          />
+          <StyledText>miles</StyledText>
+        </StyledInputContainer>
 
-      <StyledInputContainer>
-        <StyledTextInput
-          value={String(kilometers)}
-          onChangeText={onKiloMetersChange}
-        />
-        <StyledText>km</StyledText>
-      </StyledInputContainer>
+        <StyledInputContainer>
+          <StyledTextInput
+            value={String(kilometers)}
+            onChangeText={onKiloMetersChange}
+            keyboardType={"numeric"}
+          />
+          <StyledText>km</StyledText>
+        </StyledInputContainer>
 
-      <StyledResetContainer>
-        <StyledResetButton onPress={() => setValues(initialValue)}>
-          <StyledResetButtonText>Reset</StyledResetButtonText>
-        </StyledResetButton>
-      </StyledResetContainer>
-    </StyledView>
+        <StyledResetContainer>
+          <StyledResetButton onPress={() => setValues(initialValue)}>
+            <StyledResetButtonText>Reset</StyledResetButtonText>
+          </StyledResetButton>
+        </StyledResetContainer>
+      </StyledView>
+    </Pressable>
   );
 };
 

@@ -28,8 +28,6 @@ const StyledContainer = styled.View`
   align-items: center;
 `;
 
-const StyledHistoryView = styled.FlatList``;
-
 const StyledHistoryItem = styled.View`
   margin: 10px;
   background-color: #262626;
@@ -46,6 +44,7 @@ const CalculatorHistoryView = () => {
 
         <FlatList
           style={styles.flatList}
+          keyExtractor={(_, index) => String(index)}
           data={calculatorHistory}
           renderItem={({ item, index }) => (
             <StyledHistoryItem key={index}>
