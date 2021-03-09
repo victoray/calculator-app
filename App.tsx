@@ -241,7 +241,7 @@ const MyStack = () => {
   return (
     <NavigationContainer>
       <Tab.Navigator
-        initialRouteName={"Converter"}
+        initialRouteName={"Calculator"}
         tabBarOptions={{
           activeTintColor: "orange",
           inactiveTintColor: "white",
