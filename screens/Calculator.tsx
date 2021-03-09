@@ -3,6 +3,8 @@ import KeyPad, { Control, Operator } from "../components/KeyPad";
 import ReactDOM from "react-dom";
 import styled from "styled-components/native";
 import { StyledView } from "../common/styles";
+import { saveHistory, useAppDispatch } from "../store";
+import dayjs from "dayjs";
 
 const StyledNumberView = styled.View`
   justify-content: flex-end;
@@ -21,6 +23,8 @@ const StyledNumberText = styled.Text`
 const MAX_DIGIT = 10;
 
 const Calculator: FC = () => {
+  const dispatch = useAppDispatch();
+
   const [firstNumber, setFirstNumber] = useState(0);
   const [secondNumber, setSecondNumber] = useState<null | number>(null);
   const [operator, setOperator] = useState<Operator | null>(null);
@@ -76,15 +80,24 @@ const Calculator: FC = () => {
 
   const evaluate = (valueA: number, valueB: number, operator: Operator) => {
     let result: number;
+    let equation: string;
 
     if (operator === Operator.POWER) {
       result = Math.pow(firstNumber, Number(number));
+      equation = `${firstNumber} ^ ${number} = ${result}`;
     } else {
       result = eval(`${firstNumber}
-            ${operator}
-            ${number}`);
+      ${operator}
+      ${number}`);
+      equation = `${firstNumber} ${operator} ${number} = ${result}`;
     }
 
+    dispatch(
+      saveHistory({
+        equation,
+        timestamp: dayjs().format("MMMM DD, YYYY HH:mm"),
+      })
+    );
     setNumber(String(result));
   };
 
