@@ -6,6 +6,8 @@ import Calculator from "./screens/Calculator";
 import Converter from "./screens/Converter";
 import CalculatorHistoryView from "./screens/CalculatorHistory";
 import { Provider } from "react-redux";
+import CloudHistory from "./screens/CloudHistory";
+import "./firebase";
 import store from "./store";
 
 const Tab = createBottomTabNavigator();
@@ -15,13 +17,13 @@ const MyStack = () => {
     <Provider store={store}>
       <NavigationContainer>
         <Tab.Navigator
-          initialRouteName={"Calculator"}
+          initialRouteName={"Cloud History"}
           tabBarOptions={{
             activeTintColor: "orange",
             inactiveTintColor: "white",
             style: { backgroundColor: "#121212", borderTopColor: "#121212" },
             labelStyle: {
-              fontSize: 20,
+              fontSize: 14,
               fontWeight: "bold",
             },
           }}
@@ -29,6 +31,7 @@ const MyStack = () => {
           <Tab.Screen name="Calculator" component={Calculator} />
           <Tab.Screen name="Converter" component={Converter} />
           <Tab.Screen name="History" component={CalculatorHistoryView} />
+          <Tab.Screen name="Cloud" component={CloudHistory} />
         </Tab.Navigator>
       </NavigationContainer>
     </Provider>

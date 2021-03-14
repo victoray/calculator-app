@@ -5,6 +5,7 @@ import styled from "styled-components/native";
 import { StyledView } from "../common/styles";
 import { saveHistory, useAppDispatch } from "../store";
 import dayjs from "dayjs";
+import firestore from "../storage/firestore";
 
 const StyledNumberView = styled.View`
   justify-content: flex-end;
@@ -92,12 +93,13 @@ const Calculator: FC = () => {
       equation = `${firstNumber} ${operator} ${number} = ${result}`;
     }
 
-    dispatch(
-      saveHistory({
-        equation,
-        timestamp: dayjs().format("MMMM DD, YYYY HH:mm"),
-      })
-    );
+    const payload = {
+      equation,
+      timestamp: dayjs().format("MMMM DD, YYYY HH:mm"),
+    };
+
+    dispatch(saveHistory(payload));
+    firestore.setItem(payload);
     setNumber(String(result));
   };
 

@@ -1,12 +1,22 @@
 import AsyncStorage from "@react-native-community/async-storage";
 
-class Storage {
+export interface Storage {
+  key: string;
+
+  setItem(value: unknown): unknown;
+
+  getItem(): unknown;
+}
+
+export class BaseStorage {
   key: string;
 
   constructor(key: string) {
     this.key = key;
   }
+}
 
+class LocalStorage extends BaseStorage implements Storage {
   async setItem(value: unknown): Promise<void> {
     try {
       await AsyncStorage.setItem(this.key, JSON.stringify(value));
@@ -25,4 +35,4 @@ class Storage {
 }
 
 const DEFAULT_STORAGE = "calculatorHistory";
-export default new Storage(DEFAULT_STORAGE);
+export default new LocalStorage(DEFAULT_STORAGE);
